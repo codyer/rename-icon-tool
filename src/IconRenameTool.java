@@ -80,6 +80,7 @@ public class IconRenameTool {
                 mList.setNames(name);
             }
             iconList.setModel(mList);
+            iconList.updateUI();
         });
         outputButton.addActionListener(e -> {
             if (mList == null){
@@ -93,7 +94,7 @@ public class IconRenameTool {
             if (mList.getRowCount() > 0) {
                 for (int i = 0; i < mList.getRowCount(); i++) {
                     copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@2x.png", dirX + "\\" + mList.getNewNames().get(i) + ".png");
-                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@2x.png", dirXX + "\\" + mList.getNewNames().get(i) + ".png");
+                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@3x.png", dirXX + "\\" + mList.getNewNames().get(i) + ".png");
                 }
                 JOptionPane.showMessageDialog(null, "文件生成成功：" + filePath.getText(), "导出成功", JOptionPane.INFORMATION_MESSAGE);
                 try {
