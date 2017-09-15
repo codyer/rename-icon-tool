@@ -100,8 +100,8 @@ public class IconRenameTool {
             if (mkDir(dirXX)) return;
             if (mList.getRowCount() > 0) {
                 for (int i = 0; i < mList.getRowCount(); i++) {
-                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@2x.png", dirX + "\\" + mList.getNewNames().get(i) + ".png");
-                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@3x.png", dirXX + "\\" + mList.getNewNames().get(i) + ".png");
+                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@2x.png", pathXhdpi + "\\" + mList.getNewNames().get(i) + ".png");
+                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@3x.png", pathXXhdpi + "\\" + mList.getNewNames().get(i) + ".png");
                 }
                 JOptionPane.showMessageDialog(null, "文件生成成功：" + filePath.getText(), "导出成功", JOptionPane.INFORMATION_MESSAGE);
                 try {
@@ -180,7 +180,7 @@ public class IconRenameTool {
     private boolean mkDir(File dir) {
         if (!dir.exists()) {
             //创建目录
-            if (dir.mkdirs()) {
+            if (dir.mkdir()) {
                 System.out.println("创建目录" + dir.getName() + "成功！");
             } else {
                 System.out.println("创建目录" + dir.getName() + "失败！");
