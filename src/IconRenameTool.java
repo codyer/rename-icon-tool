@@ -50,7 +50,7 @@ public class IconRenameTool {
 
     public IconRenameTool() {
         //截掉路径的”file:/“前缀
-        propertiesPath = System.getProperty("user.dir") + PROPERTIES_FILE_NAME;
+        propertiesPath = System.getProperty("java.io.tmpdir") + PROPERTIES_FILE_NAME;
 //        propertiesPath = this.getClass().getResource(PROPERTIES_FILE_NAME).toString().substring(6);
         init();
         iconList.addKeyListener(new KeyAdapter() {
