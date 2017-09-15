@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -13,7 +14,6 @@ import static javax.swing.SwingConstants.CENTER;
  */
 public class IconRenameTool {
 
-    private final String configPath;
     private JPanel panelMain;
     private JTextField filePath;
     private JButton openButton;
@@ -25,7 +25,12 @@ public class IconRenameTool {
     private File file;
     private String pathXhdpi = "\\drawable-xhdpi\\";
     private String pathXXhdpi = "\\drawable-xxhdpi\\";
-    private final Properties properties = new Properties();
+    private static String propertiesPath;
+    private static Properties properties = new Properties();
+    /*properties文件名*/
+    private static final String PROPERTIES_FILE_NAME = "\\config.properties";
+    /*键*/
+    private static final String KEY_PATH = "path";
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Icon Rename Tool");
@@ -34,6 +39,7 @@ public class IconRenameTool {
             UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
             UIManager.setLookAndFeel(lookAndFeels[1].getClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            JOptionPane.showMessageDialog(null, e, "设置UI失败", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         frame.setLocationRelativeTo(null);
@@ -43,7 +49,9 @@ public class IconRenameTool {
     }
 
     public IconRenameTool() {
-        configPath = this.getClass().getResource("/").getPath() + "config.properties";
+        //截掉路径的”file:/“前缀
+        propertiesPath = System.getProperty("user.dir") + PROPERTIES_FILE_NAME;
+//        propertiesPath = this.getClass().getResource(PROPERTIES_FILE_NAME).toString().substring(6);
         init();
         iconList.addKeyListener(new KeyAdapter() {
             @Override
@@ -71,15 +79,10 @@ public class IconRenameTool {
     }
 
     private void init() {
-        try {
-            InputStream iStream = new FileInputStream(configPath);
-            properties.load(iStream);
-            System.out.println(properties.getProperty("path"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(properties.isEmpty()) {
+            initProperties();
         }
-        filePath.setText(properties.getProperty("path"));
+        filePath.setText(properties.getProperty(KEY_PATH));
         openButton.addActionListener(e -> {
             filePath.setText(fileOpen());
             loadNames();
@@ -105,6 +108,7 @@ public class IconRenameTool {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException e1) {
+                    JOptionPane.showMessageDialog(null, e1, "导出失败", JOptionPane.ERROR_MESSAGE);
                     e1.printStackTrace();
                 }
             } else {
@@ -117,16 +121,7 @@ public class IconRenameTool {
         while (null == filePath.getText() || filePath.getText().isEmpty()) {
             filePath.setText(fileOpen());
         }
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getClass().getResource("/").getPath() + "config.properties");
-            properties.setProperty("path", filePath.getText());
-            properties.store(fos, "the primary key of article table");
-            System.out.println(properties.getProperty("path"));
-            fos.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        savePathKey(filePath.getText());
 
         List<String> name = new ArrayList<>();
         file = new File(filePath.getText());
@@ -145,6 +140,42 @@ public class IconRenameTool {
         }
         iconList.setModel(mList);
         iconList.updateUI();
+    }
+
+    /**
+     * 初始化properties，即载入数据
+     */
+    private static void initProperties() {
+        try {
+            File file = new File(propertiesPath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            InputStream fis = new FileInputStream(file);
+            properties.load(fis);
+            fis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**修改path的值，并保存
+     * @param path
+     */
+    public static void savePathKey(String path){
+        if(properties.isEmpty()) {
+            initProperties();
+        }
+        //修改值
+        properties.setProperty(KEY_PATH, path);
+        //保存文件
+        try {
+            FileOutputStream fos = new FileOutputStream(propertiesPath);
+            properties.store(fos, "the primary key of article table");
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean mkDir(File dir) {

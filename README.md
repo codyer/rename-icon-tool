@@ -6,12 +6,12 @@
 因此设计师给到如logo@2x.png 和logo@3x.png时，我们可以直接使用工具导出对应文件夹。
 使用步骤如下：
 
-![](src/pictures/step1.png)
+![](pictures/step1.png)
 
-![](src/pictures/step2.png)
+![](pictures/step2.png)
 
-![](src/pictures/step3.png)
+![](pictures/step3.png)
 
-![](src/pictures/step4.png)
+![](pictures/step4.png)
 
 直接把生成的图标copy到Android对应的工程就可以了，免去了要修改两遍icon名字的麻烦
