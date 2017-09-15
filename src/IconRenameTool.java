@@ -23,8 +23,8 @@ public class IconRenameTool {
     private JButton loadButton;
     private IconNameListModel mList;
     private File file;
-    private String pathXhdpi = "\\drawable-xhdpi\\";
-    private String pathXXhdpi = "\\drawable-xxhdpi\\";
+    private String pathXhdpi;
+    private String pathXXhdpi;
     private static String propertiesPath;
     private static Properties properties = new Properties();
     /*properties文件名*/
@@ -51,7 +51,6 @@ public class IconRenameTool {
     public IconRenameTool() {
         //截掉路径的”file:/“前缀
         propertiesPath = System.getProperty("java.io.tmpdir") + PROPERTIES_FILE_NAME;
-//        propertiesPath = this.getClass().getResource(PROPERTIES_FILE_NAME).toString().substring(6);
         init();
         iconList.addKeyListener(new KeyAdapter() {
             @Override
@@ -125,8 +124,8 @@ public class IconRenameTool {
 
         List<String> name = new ArrayList<>();
         file = new File(filePath.getText());
-        pathXhdpi = file.getPath() + "\\drawable-xhdpi\\";
-        pathXXhdpi = file.getPath() + "\\drawable-xxhdpi\\";
+        pathXhdpi = file.getPath() + "\\drawable-xhdpi";
+        pathXXhdpi = file.getPath() + "\\drawable-xxhdpi";
         String[] fileNames = file.list();
         for (String fileName : fileNames) {
             if (fileName.endsWith("@2x.png")) {
