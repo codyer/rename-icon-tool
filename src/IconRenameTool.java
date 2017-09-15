@@ -5,33 +5,45 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import static javax.swing.SwingConstants.CENTER;
+
 /**
  * Created by Cody.yi on 2017/9/14.
  * IconRenameTool
  */
 public class IconRenameTool {
 
+    private final String configPath;
     private JPanel panelMain;
     private JTextField filePath;
-    private JButton inputButton;
+    private JButton openButton;
     private JButton outputButton;
     private JTable iconList;
     private JLabel review;
+    private JButton loadButton;
     private IconNameListModel mList;
     private File file;
     private String pathXhdpi = "\\drawable-xhdpi\\";
     private String pathXXhdpi = "\\drawable-xxhdpi\\";
+    private final Properties properties = new Properties();
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Icon Rename Tool");
         frame.setContentPane(new IconRenameTool().panelMain);
+        try {
+            UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
+            UIManager.setLookAndFeel(lookAndFeels[1].getClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
 
     public IconRenameTool() {
+        configPath = this.getClass().getResource("/").getPath() + "config.properties";
         init();
         iconList.addKeyListener(new KeyAdapter() {
             @Override
@@ -54,36 +66,29 @@ public class IconRenameTool {
         }
         String path = file.getPath() + "\\" + mList.getNames().get(iconList.getSelectedRow()) + "@2x.png";
         ImageIcon icon = new ImageIcon(path);
+        review.setHorizontalAlignment(CENTER);
         review.setIcon(icon);
     }
 
     private void init() {
-        filePath.setText("E:");
-        inputButton.addActionListener(e -> {
+        try {
+            InputStream iStream = new FileInputStream(configPath);
+            properties.load(iStream);
+            System.out.println(properties.getProperty("path"));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        filePath.setText(properties.getProperty("path"));
+        openButton.addActionListener(e -> {
             filePath.setText(fileOpen());
-            while (null == filePath.getText() || filePath.getText().isEmpty()) {
-                filePath.setText(fileOpen());
-            }
-            List<String> name = new ArrayList<>();
-            file = new File(filePath.getText());
-            pathXhdpi = file.getPath() + "\\drawable-xhdpi\\";
-            pathXXhdpi = file.getPath() + "\\drawable-xxhdpi\\";
-            String[] fileNames = file.list();
-            for (String fileName : fileNames) {
-                if (fileName.endsWith("@2x.png")) {
-                    name.add(fileName.replace("@2x.png", ""));
-                }
-            }
-            if (mList == null) {
-                mList = new IconNameListModel(name);
-            } else {
-                mList.setNames(name);
-            }
-            iconList.setModel(mList);
-            iconList.updateUI();
+            loadNames();
+        });
+        loadButton.addActionListener(e -> {
+            loadNames();
         });
         outputButton.addActionListener(e -> {
-            if (mList == null){
+            if (mList == null) {
                 JOptionPane.showMessageDialog(null, "当前路径下没有需要重命名的图片文件。", "导出失败", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -106,6 +111,40 @@ public class IconRenameTool {
                 JOptionPane.showMessageDialog(null, "当前路径下没有需要重命名的图片文件。", "导出失败", JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    private void loadNames() {
+        while (null == filePath.getText() || filePath.getText().isEmpty()) {
+            filePath.setText(fileOpen());
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getClass().getResource("/").getPath() + "config.properties");
+            properties.setProperty("path", filePath.getText());
+            properties.store(fos, "the primary key of article table");
+            System.out.println(properties.getProperty("path"));
+            fos.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        List<String> name = new ArrayList<>();
+        file = new File(filePath.getText());
+        pathXhdpi = file.getPath() + "\\drawable-xhdpi\\";
+        pathXXhdpi = file.getPath() + "\\drawable-xxhdpi\\";
+        String[] fileNames = file.list();
+        for (String fileName : fileNames) {
+            if (fileName.endsWith("@2x.png")) {
+                name.add(fileName.replace("@2x.png", ""));
+            }
+        }
+        if (mList == null) {
+            mList = new IconNameListModel(name);
+        } else {
+            mList.setNames(name);
+        }
+        iconList.setModel(mList);
+        iconList.updateUI();
     }
 
     private boolean mkDir(File dir) {
