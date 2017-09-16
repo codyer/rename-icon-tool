@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="IconRenameTool">
-  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="6" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="7" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="10" left="10" bottom="10" right="10"/>
     <constraints>
-      <xy x="20" y="20" width="728" height="462"/>
+      <xy x="20" y="20" width="728" height="565"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <scrollpane id="ce87f">
         <constraints>
-          <grid row="2" column="0" row-span="4" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="5" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="371bd" class="javax.swing.JTable" binding="iconList">
+          <component id="371bd" class="javax.swing.JTable" binding="mIconList">
             <constraints/>
             <properties>
               <fillsViewportHeight value="true"/>
@@ -27,9 +27,9 @@
           </component>
         </children>
       </scrollpane>
-      <component id="7f19c" class="javax.swing.JLabel" binding="review">
+      <component id="7f19c" class="javax.swing.JLabel" binding="mIconReview">
         <constraints>
-          <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false">
+          <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false">
             <minimum-size width="100" height="100"/>
             <preferred-size width="250" height="250"/>
             <maximum-size width="250" height="250"/>
@@ -40,34 +40,102 @@
           <text value=""/>
         </properties>
       </component>
-      <component id="96eee" class="javax.swing.JButton" binding="outputButton" default-binding="true">
+      <component id="cd2d3" class="javax.swing.JButton" binding="mAddButton">
         <constraints>
-          <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <focusPainted value="false"/>
-          <focusable value="false"/>
-          <text value="Output"/>
-        </properties>
-      </component>
-      <component id="cd2d3" class="javax.swing.JButton" binding="openButton">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="50" height="-1"/>
           </grid>
         </constraints>
         <properties>
           <focusPainted value="false"/>
           <focusable value="false"/>
-          <label value="Open"/>
-          <text value="Open"/>
+          <label value="添加"/>
+          <text value="添加"/>
         </properties>
       </component>
-      <component id="bf905" class="javax.swing.JButton" binding="loadButton">
+      <component id="4cbe2" class="javax.swing.JButton" binding="mDeleteButton">
         <constraints>
-          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="50" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <focusPainted value="false"/>
+          <focusable value="false"/>
+          <label value="删除"/>
+          <text value="删除"/>
+        </properties>
+      </component>
+      <component id="be4a" class="javax.swing.JButton" binding="mClearButton">
+        <constraints>
+          <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="50" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <focusPainted value="false"/>
+          <focusable value="false"/>
+          <label value="清空"/>
+          <text value="清空"/>
+        </properties>
+      </component>
+      <component id="43ac5" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentX value="0.5"/>
+          <focusable value="false"/>
+          <text value="&lt;html&gt;&#10;1、输入或点击【open】选择图标路径&lt;br&gt;&#10;2、点击【Load】&lt;br&gt;&#10;3、修改名字&lt;br&gt;&#10;4、点击【Output】&lt;br&gt;&#10;&lt;/html&gt;"/>
+        </properties>
+      </component>
+      <component id="3edfb" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="图片路径"/>
+        </properties>
+      </component>
+      <component id="985a4" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="输出路径"/>
+        </properties>
+      </component>
+      <component id="e6839" class="javax.swing.JTextField" binding="mInputPath">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="31af2" class="javax.swing.JTextField" binding="mOutputPath">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="96eee" class="javax.swing.JButton" binding="mOutputButton">
+        <constraints>
+          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="100" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <focusPainted value="false"/>
+          <focusable value="false"/>
+          <text value="输出"/>
+        </properties>
+      </component>
+      <component id="bf905" class="javax.swing.JButton" binding="mLoadButton">
+        <constraints>
+          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="50" height="-1"/>
           </grid>
         </constraints>
@@ -75,26 +143,36 @@
           <actionCommand value=""/>
           <focusPainted value="false"/>
           <focusable value="false"/>
-          <label value="Load"/>
-          <text value="Load"/>
+          <label value="载入"/>
+          <text value="载入"/>
         </properties>
       </component>
-      <component id="e6839" class="javax.swing.JTextField" binding="filePath">
+      <component id="75d01" class="javax.swing.JButton" binding="mChooseInputButton">
         <constraints>
-          <grid row="0" column="0" row-span="2" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="50" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <actionCommand value=""/>
+          <focusPainted value="false"/>
+          <focusable value="false"/>
+          <label value="选择"/>
+          <text value="选择"/>
+        </properties>
       </component>
-      <component id="43ac5" class="javax.swing.JLabel">
+      <component id="3291d" class="javax.swing.JButton" binding="mChooseOutputButton">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="50" height="-1"/>
+          </grid>
         </constraints>
         <properties>
-          <alignmentX value="0.5"/>
+          <actionCommand value=""/>
+          <focusPainted value="false"/>
           <focusable value="false"/>
-          <text value="&lt;html&gt;&#10;1、输入或点击【open】选择图标路径&lt;br&gt;&#10;2、点击【Load】&lt;br&gt;&#10;3、修改名字&lt;br&gt;&#10;4、点击【Output】&lt;br&gt;&#10;&lt;/html&gt;"/>
+          <label value="选择"/>
+          <text value="选择"/>
         </properties>
       </component>
     </children>

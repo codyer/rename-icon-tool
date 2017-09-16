@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -14,30 +13,39 @@ import static javax.swing.SwingConstants.CENTER;
  */
 public class IconRenameTool {
 
-    private JPanel panelMain;
-    private JTextField filePath;
-    private JButton openButton;
-    private JButton outputButton;
-    private JTable iconList;
-    private JLabel review;
-    private JButton loadButton;
-    private IconNameListModel mList;
-    private File file;
-    private String pathXhdpi;
-    private String pathXXhdpi;
-    private static String propertiesPath;
-    private static Properties properties = new Properties();
     /*properties文件名*/
-    private static final String PROPERTIES_FILE_NAME = File.separator + "config.properties";
+    private static final String PROPERTIES_FILE_NAME = File.separator + "config.mProperties";
+    private static final String SUFFIX_PNG = ".png";
+    private static final String SUFFIX_2_TIMES = "@2x.png";
+    private static final String SUFFIX_3_TIMES = "@3x.png";
+    private static final String FILE_PATH_2_TIMES = "drawable-xhdpi";
+    private static final String FILE_PATH_3_TIMES = "drawable-xxhdpi";
     /*键*/
-    private static final String KEY_PATH = "path";
+    private static final String KEY_INPUT_PATH = "input_path";
+    private static final String KEY_OUTPUT_PATH = "output_path";
+
+    private static String sPropertiesPath = System.getProperty("java.io.tmpdir") + PROPERTIES_FILE_NAME;
+    private Properties mProperties = new Properties();
+
+    private JPanel panelMain;
+    private JTextField mInputPath;
+    private JTextField mOutputPath;
+    private JButton mLoadButton;
+    private JButton mOutputButton;
+    private JButton mChooseInputButton;
+    private JButton mChooseOutputButton;
+    private JButton mAddButton;
+    private JButton mDeleteButton;
+    private JButton mClearButton;
+    private JTable mIconList;
+    private JLabel mIconReview;
+    private IconFileTableModel mFileTableModel;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Icon Rename Tool");
         frame.setContentPane(new IconRenameTool().panelMain);
         try {
-            UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
-            UIManager.setLookAndFeel(lookAndFeels[1].getClassName());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             JOptionPane.showMessageDialog(null, e, "设置UI失败", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
@@ -48,129 +56,186 @@ public class IconRenameTool {
         frame.setVisible(true);
     }
 
-    public IconRenameTool() {
-        //截掉路径的”file:/“前缀
-        propertiesPath = System.getProperty("java.io.tmpdir") + PROPERTIES_FILE_NAME;
+    IconRenameTool() {
+        mFileTableModel = new IconFileTableModel();
+        mIconList.setModel(mFileTableModel);
         init();
-        iconList.addKeyListener(new KeyAdapter() {
+    }
+
+    private void showIcon() {
+        if (mIconList.getSelectedRow() == -1 || mFileTableModel.getRowCount() <= mIconList.getSelectedRow()) {
+            return;
+        }
+        FileItem fileItem = mFileTableModel.getFileItems().get(mIconList.getSelectedRow());
+        String path = fileItem.getOldPath() + File.separator + fileItem.getOldName() + SUFFIX_2_TIMES;
+        //这个是按等比缩放
+        ImageIcon icon = new ImageIcon(path);
+        int width = mIconReview.getWidth();
+        int height = mIconReview.getHeight();
+        if (icon.getIconWidth() > icon.getIconHeight()) {
+            height = icon.getIconHeight() * width / icon.getIconWidth();
+        } else if (icon.getIconWidth() < icon.getIconHeight()) {
+            width = icon.getIconWidth() * height / icon.getIconHeight();
+        }
+        icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
+        mIconReview.setHorizontalAlignment(CENTER);
+        mIconReview.setIcon(icon);
+    }
+
+    private void init() {
+        if (mProperties.isEmpty()) {
+            initProperties();
+        }
+
+        mInputPath.setText(mProperties.getProperty(KEY_INPUT_PATH));
+        mOutputPath.setText(mProperties.getProperty(KEY_OUTPUT_PATH));
+
+        mIconList.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
                 showIcon();
             }
         });
-        iconList.addMouseListener(new MouseAdapter() {
+
+        mIconList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 showIcon();
             }
         });
+
+        mChooseInputButton.addActionListener(e -> {
+            setPath(mInputPath);
+        });
+        mChooseOutputButton.addActionListener(e -> {
+            setPath(mOutputPath);
+        });
+
+        mLoadButton.addActionListener(e -> {
+            loadFiles();
+        });
+
+        mOutputButton.addActionListener(e -> {
+            outPutIcons();
+        });
+
+        mAddButton.addActionListener(e -> {
+            addFiles(selectFiles());
+        });
+
+        mDeleteButton.addActionListener(e -> {
+            if (mIconList.getSelectedRow() == -1) return;
+            mFileTableModel.getFileItems().remove(mIconList.getSelectedRow());
+            mIconList.updateUI();
+        });
+
+        mClearButton.addActionListener(e -> {
+            mFileTableModel.getFileItems().clear();
+            mIconList.updateUI();
+        });
     }
 
-    private void showIcon() {
-        if ((iconList.getSelectedRow()) == -1) {
+    private void setPath(JTextField pathView) {
+        File file = selectFilePath(pathView.getText());
+        if (file != null) {
+            pathView.setText(file.getPath());
+            savePathKey();
+        }
+    }
+
+    private void loadFiles() {
+        if (null == mInputPath.getText() || mInputPath.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "请选择载入图片路径", "载入失败", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String path = file.getPath() + File.separator + mList.getNames().get(iconList.getSelectedRow()) + "@2x.png";
-        ImageIcon icon = new ImageIcon(path);
-        review.setHorizontalAlignment(CENTER);
-        review.setIcon(icon);
+
+        File file = new File(mInputPath.getText());
+
+        File[] files = file.listFiles();
+        addFiles(files);
     }
 
-    private void init() {
-        if(properties.isEmpty()) {
-            initProperties();
+    private void outPutIcons() {
+        if (mFileTableModel == null || mFileTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(null, "当前路径下没有需要重命名的图片文件。", "导出失败", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        filePath.setText(properties.getProperty(KEY_PATH));
-        openButton.addActionListener(e -> {
-            filePath.setText(fileOpen());
-            loadNames();
-        });
-        loadButton.addActionListener(e -> {
-            loadNames();
-        });
-        outputButton.addActionListener(e -> {
-            if (mList == null) {
-                JOptionPane.showMessageDialog(null, "当前路径下没有需要重命名的图片文件。", "导出失败", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            File dirXX = new File(pathXXhdpi);
-            File dirX = new File(pathXhdpi);
-            if (mkDir(dirX)) return;
-            if (mkDir(dirXX)) return;
-            if (mList.getRowCount() > 0) {
-                for (int i = 0; i < mList.getRowCount(); i++) {
-                    copyFile(file.getPath() + File.separator + mList.getNames().get(i) + "@2x.png", pathXhdpi + File.separator + mList.getNewNames().get(i) + ".png");
-                    copyFile(file.getPath() + File.separator + mList.getNames().get(i) + "@3x.png", pathXXhdpi + File.separator + mList.getNewNames().get(i) + ".png");
-                }
-                JOptionPane.showMessageDialog(null, "文件生成成功：" + filePath.getText(), "导出成功", JOptionPane.INFORMATION_MESSAGE);
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(null, e1, "导出失败", JOptionPane.ERROR_MESSAGE);
-                    e1.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "当前路径下没有需要重命名的图片文件。", "导出失败", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        if (null == mOutputPath.getText() || mOutputPath.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "请选择输出路径。", "导出失败", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        File dirX = new File(mOutputPath.getText() + File.separator + FILE_PATH_2_TIMES);
+        File dirXX = new File(mOutputPath.getText() + File.separator + FILE_PATH_3_TIMES);
+        if (mkDir(dirX)) return;
+        if (mkDir(dirXX)) return;
+
+        for (int i = 0; i < mFileTableModel.getRowCount(); i++) {
+            FileItem fileItem = mFileTableModel.getFileItem(i);
+            copyFile(fileItem.getOldPath() + File.separator + fileItem.getOldName() + SUFFIX_2_TIMES,
+                    dirX.getPath() + File.separator + fileItem.getNewName() + SUFFIX_PNG);
+            copyFile(fileItem.getOldPath() + File.separator + fileItem.getOldName() + SUFFIX_3_TIMES,
+                    dirXX.getPath() + File.separator + fileItem.getNewName() + SUFFIX_PNG);
+        }
+        savePathKey();
+        JOptionPane.showMessageDialog(null, "文件生成成功：" + mOutputPath.getText(), "导出成功", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            Desktop.getDesktop().open(dirX.getParentFile());
+        } catch (IOException e1) {
+            JOptionPane.showMessageDialog(null, e1, "导出失败", JOptionPane.ERROR_MESSAGE);
+            e1.printStackTrace();
+        }
     }
 
-    private void loadNames() {
-        while (null == filePath.getText() || filePath.getText().isEmpty()) {
-            filePath.setText(fileOpen());
-        }
-        savePathKey(filePath.getText());
+    private void addFiles(File[] files) {
+        if (files == null) return;
 
-        List<String> name = new ArrayList<>();
-        file = new File(filePath.getText());
-        pathXhdpi = file.getPath() + File.separator+"drawable-xhdpi";
-        pathXXhdpi = file.getPath() + File.separator+"drawable-xxhdpi";
-        String[] fileNames = file.list();
-        for (String fileName : fileNames) {
-            if (fileName.endsWith("@2x.png")) {
-                name.add(fileName.replace("@2x.png", ""));
+        List<FileItem> fileItems = new ArrayList<>();
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith(SUFFIX_2_TIMES)) {
+                FileItem fileItem = new FileItem();
+                fileItem.setOldPath(file.getParent());
+                fileItem.setOldName(file.getName().replace(SUFFIX_2_TIMES, ""));
+                fileItem.setNewName(file.getName().replace(SUFFIX_2_TIMES, ""));
+                fileItems.add(fileItem);
             }
         }
-        if (mList == null) {
-            mList = new IconNameListModel(name);
-        } else {
-            mList.setNames(name);
-        }
-        iconList.setModel(mList);
-        iconList.updateUI();
+        mFileTableModel.setFileItems(fileItems);
+        mIconList.updateUI();
     }
 
     /**
      * 初始化properties，即载入数据
      */
-    private static void initProperties() {
+    private void initProperties() {
         try {
-            File file = new File(propertiesPath);
+            File file = new File(sPropertiesPath);
             if (!file.exists()) {
                 file.createNewFile();
             }
             InputStream fis = new FileInputStream(file);
-            properties.load(fis);
+            mProperties.load(fis);
             fis.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**修改path的值，并保存
-     * @param path
+    /**
+     * 修改path的值，并保存
      */
-    public static void savePathKey(String path){
-        if(properties.isEmpty()) {
+    private void savePathKey() {
+        if (mProperties.isEmpty()) {
             initProperties();
         }
         //修改值
-        properties.setProperty(KEY_PATH, path);
+        mProperties.setProperty(KEY_INPUT_PATH, mInputPath.getText());
+        mProperties.setProperty(KEY_OUTPUT_PATH, mOutputPath.getText());
         //保存文件
         try {
-            FileOutputStream fos = new FileOutputStream(propertiesPath);
-            properties.store(fos, "the primary key of article table");
+            FileOutputStream fos = new FileOutputStream(sPropertiesPath);
+            mProperties.store(fos, "the primary key of article table");
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,27 +256,47 @@ public class IconRenameTool {
     }
 
     /**
-     * 打开路径
+     * 添加文件
      */
-    private String fileOpen() {
-        File f;
-        JFileChooser fc = new JFileChooser(filePath.getText()); //这里可以设置打开默认路径
-        String fileName = "";
-        String flags;
+    private File[] selectFiles() {
+        File[] files = null;
+        JFileChooser fc = new JFileChooser(mInputPath.getText()); //这里可以设置打开默认路径
+        try {
+            fc.setMultiSelectionEnabled(true);
+            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            //设置 JFileChooser，以允许用户只选择文件、只选择目录，或者可选择文件和目录。
+            fc.showOpenDialog(null);
+            if (fc.getSelectedFile().isDirectory()) {
+                mInputPath.setText(fc.getSelectedFile().getPath());
+                files = fc.getSelectedFile().listFiles();
+            } else {
+                files = fc.getSelectedFiles();
+            }
+        } catch (HeadlessException he) {
+            System.out.println("Save File Dialog ERROR!");
+        }
+        return files;
+    }
+
+    /**
+     * 选择路径
+     */
+    private File selectFilePath(String path) {
+        File file = null;
+        JFileChooser fc = new JFileChooser(path); //这里可以设置打开默认路径
         try {
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             //设置 JFileChooser，以允许用户只选择文件、只选择目录，或者可选择文件和目录。
             fc.showOpenDialog(null);
             //打开目录对话框
-            flags = fc.getSelectedFile().getName();
-            f = fc.getCurrentDirectory();
-            //获得文件名
-            fileName = f.getAbsolutePath() + File.separator + flags;
-            System.out.println(fileName);
+            file = fc.getSelectedFile();
+            if (file == null) {
+                file = fc.getCurrentDirectory();
+            }
         } catch (HeadlessException he) {
             System.out.println("Save File Dialog ERROR!");
         }
-        return fileName;
+        return file;
     }
 
     /**
@@ -219,9 +304,8 @@ public class IconRenameTool {
      *
      * @param oldPath String 原文件路径 如：c:/fqf.txt
      * @param newPath String 复制后路径 如：f:/fqf.txt
-     * @return boolean
      */
-    public void copyFile(String oldPath, String newPath) {
+    private void copyFile(String oldPath, String newPath) {
         try {
             int byteSum = 0;
             int byteRead = 0;
