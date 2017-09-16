@@ -28,7 +28,7 @@ public class IconRenameTool {
     private static String propertiesPath;
     private static Properties properties = new Properties();
     /*properties文件名*/
-    private static final String PROPERTIES_FILE_NAME = "\\config.properties";
+    private static final String PROPERTIES_FILE_NAME = File.separator + "config.properties";
     /*键*/
     private static final String KEY_PATH = "path";
 
@@ -71,7 +71,7 @@ public class IconRenameTool {
         if ((iconList.getSelectedRow()) == -1) {
             return;
         }
-        String path = file.getPath() + "\\" + mList.getNames().get(iconList.getSelectedRow()) + "@2x.png";
+        String path = file.getPath() + File.separator + mList.getNames().get(iconList.getSelectedRow()) + "@2x.png";
         ImageIcon icon = new ImageIcon(path);
         review.setHorizontalAlignment(CENTER);
         review.setIcon(icon);
@@ -100,8 +100,8 @@ public class IconRenameTool {
             if (mkDir(dirXX)) return;
             if (mList.getRowCount() > 0) {
                 for (int i = 0; i < mList.getRowCount(); i++) {
-                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@2x.png", pathXhdpi + "\\" + mList.getNewNames().get(i) + ".png");
-                    copyFile(file.getPath() + "\\" + mList.getNames().get(i) + "@3x.png", pathXXhdpi + "\\" + mList.getNewNames().get(i) + ".png");
+                    copyFile(file.getPath() + File.separator + mList.getNames().get(i) + "@2x.png", pathXhdpi + File.separator + mList.getNewNames().get(i) + ".png");
+                    copyFile(file.getPath() + File.separator + mList.getNames().get(i) + "@3x.png", pathXXhdpi + File.separator + mList.getNewNames().get(i) + ".png");
                 }
                 JOptionPane.showMessageDialog(null, "文件生成成功：" + filePath.getText(), "导出成功", JOptionPane.INFORMATION_MESSAGE);
                 try {
@@ -124,8 +124,8 @@ public class IconRenameTool {
 
         List<String> name = new ArrayList<>();
         file = new File(filePath.getText());
-        pathXhdpi = file.getPath() + "\\drawable-xhdpi";
-        pathXXhdpi = file.getPath() + "\\drawable-xxhdpi";
+        pathXhdpi = file.getPath() + File.separator+"drawable-xhdpi";
+        pathXXhdpi = file.getPath() + File.separator+"drawable-xxhdpi";
         String[] fileNames = file.list();
         for (String fileName : fileNames) {
             if (fileName.endsWith("@2x.png")) {
@@ -206,7 +206,7 @@ public class IconRenameTool {
             flags = fc.getSelectedFile().getName();
             f = fc.getCurrentDirectory();
             //获得文件名
-            fileName = f.getAbsolutePath() + "\\" + flags;
+            fileName = f.getAbsolutePath() + File.separator + flags;
             System.out.println(fileName);
         } catch (HeadlessException he) {
             System.out.println("Save File Dialog ERROR!");
