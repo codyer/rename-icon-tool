@@ -44,8 +44,8 @@ public class IconFileTableModel implements TableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        if (columnIndex == 0) return "ios icon name";
-        return "android icon name";
+        if (columnIndex == 0) return "老名字（iOS）";
+        return "新名字（Android）";
     }
 
     @Override

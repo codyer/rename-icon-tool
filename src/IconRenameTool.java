@@ -1,5 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -86,7 +91,7 @@ public class IconRenameTool {
         if (mProperties.isEmpty()) {
             initProperties();
         }
-
+        addDropListener();
         mInputPath.setText(mProperties.getProperty(KEY_INPUT_PATH));
         mOutputPath.setText(mProperties.getProperty(KEY_OUTPUT_PATH));
 
@@ -133,6 +138,37 @@ public class IconRenameTool {
         mClearButton.addActionListener(e -> {
             mFileTableModel.getFileItems().clear();
             mIconList.updateUI();
+        });
+    }
+
+    private void addDropListener() {
+        new DropTarget(mIconList, DnDConstants.ACTION_COPY_OR_MOVE, new DropTargetAdapter() {
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    // 如果拖入的文件格式受支持
+                    if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                        // 接收拖拽来的数据
+                        dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                        @SuppressWarnings("unchecked")
+                        List<File> list = (List<File>) (dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor));
+                        if (list != null) {
+                            File[] files = new File[list.size()];
+                            for (int i = 0; i < list.size(); i++) {
+                                files[i] = list.get(i);
+                            }
+                            addFiles(files);
+                        }
+                        // 指示拖拽操作已完成
+                        dtde.dropComplete(true);
+                    } else {
+                        // 拒绝拖拽来的数据
+                        dtde.rejectDrop();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 
@@ -199,6 +235,8 @@ public class IconRenameTool {
                 fileItem.setOldName(file.getName().replace(SUFFIX_2_TIMES, ""));
                 fileItem.setNewName(file.getName().replace(SUFFIX_2_TIMES, ""));
                 fileItems.add(fileItem);
+            } else if (file.isDirectory()) {
+                addFiles(file.listFiles());
             }
         }
         mFileTableModel.setFileItems(fileItems);
@@ -266,12 +304,7 @@ public class IconRenameTool {
             fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             //设置 JFileChooser，以允许用户只选择文件、只选择目录，或者可选择文件和目录。
             fc.showOpenDialog(null);
-            if (fc.getSelectedFile().isDirectory()) {
-                mInputPath.setText(fc.getSelectedFile().getPath());
-                files = fc.getSelectedFile().listFiles();
-            } else {
-                files = fc.getSelectedFiles();
-            }
+            files = fc.getSelectedFiles();
         } catch (HeadlessException he) {
             System.out.println("Save File Dialog ERROR!");
         }
@@ -290,9 +323,6 @@ public class IconRenameTool {
             fc.showOpenDialog(null);
             //打开目录对话框
             file = fc.getSelectedFile();
-            if (file == null) {
-                file = fc.getCurrentDirectory();
-            }
         } catch (HeadlessException he) {
             System.out.println("Save File Dialog ERROR!");
         }

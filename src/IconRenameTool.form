@@ -86,7 +86,7 @@
         <properties>
           <alignmentX value="0.5"/>
           <focusable value="false"/>
-          <text value="&lt;html&gt;&#10;1、输入或点击【open】选择图标路径&lt;br&gt;&#10;2、点击【Load】&lt;br&gt;&#10;3、修改名字&lt;br&gt;&#10;4、点击【Output】&lt;br&gt;&#10;&lt;/html&gt;"/>
+          <text value="&lt;html&gt;&#10;1、选择图标路径和输出路径&lt;br&gt;&#10;2、点击【载入】加载图片&lt;br&gt;&#10;3、修改名字&lt;br&gt;&#10;4、点击【输出】输出文件到输出目录&lt;br&gt;&#10;注：支持拖拽文件&#10;&lt;/html&gt;"/>
         </properties>
       </component>
       <component id="3edfb" class="javax.swing.JLabel">
