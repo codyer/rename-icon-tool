@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="rename-icon-tool:jar">
+    <output-path>$PROJECT_DIR$/rename_icon_tool_jar</output-path>
+    <root id="archive" name="rename-icon-tool.jar">
+      <element id="module-output" name="rename-icon-tool" />
+    </root>
+  </artifact>
+</component>

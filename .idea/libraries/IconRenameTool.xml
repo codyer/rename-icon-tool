@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="IconRenameTool">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/IconRenameTool.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
