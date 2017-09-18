@@ -47,7 +47,7 @@ public class IconRenameTool {
     private IconFileTableModel mFileTableModel;
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Icon Rename Tool");
+        JFrame frame = new JFrame("Icon Rename Tool 1.0 @by Cody.yi");
         frame.setContentPane(new IconRenameTool().panelMain);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
