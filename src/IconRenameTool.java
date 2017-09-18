@@ -77,12 +77,14 @@ public class IconRenameTool {
         ImageIcon icon = new ImageIcon(path);
         int width = mIconReview.getWidth();
         int height = mIconReview.getHeight();
-        if (icon.getIconWidth() > icon.getIconHeight()) {
-            height = icon.getIconHeight() * width / icon.getIconWidth();
-        } else if (icon.getIconWidth() < icon.getIconHeight()) {
-            width = icon.getIconWidth() * height / icon.getIconHeight();
+        if (width < icon.getIconWidth() || height < icon.getIconHeight()) {
+            if (icon.getIconWidth() > icon.getIconHeight()) {
+                height = icon.getIconHeight() * width / icon.getIconWidth();
+            } else if (icon.getIconWidth() < icon.getIconHeight()) {
+                width = icon.getIconWidth() * height / icon.getIconHeight();
+            }
+            icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
         }
-        icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
         mIconReview.setHorizontalAlignment(CENTER);
         mIconReview.setIcon(icon);
     }
