@@ -1,4 +1,6 @@
 "# rename-icon-tool" 
+IntelliJ IDEA 工程
+
 由于设计资源和开发时间的原因，现在大部分公司App开发只会要求设计出一套iOS的设计稿，一般也是750尺寸（iPhone6）
 切图也只会提供2倍图和3倍图。
 
